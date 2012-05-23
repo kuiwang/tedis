@@ -21,7 +21,6 @@ import org.apache.log4j.xml.DOMConfigurator;
 
 
 /**
- * logger初始化，把日志输出到应用的目录里
  * @author juxin.zj E-mail:juxin.zj@taobao.com
  * @since 2011-8-11 09:52:45
  * @version 1.0
@@ -90,7 +89,7 @@ public class LoggerInit {
 				if (deleteFile.exists()) {
 					deleteFile.delete();
 				}
-				logger.warn("成功添加日志" + deleteFile.getName() + "到" + logFile.getAbsolutePath());
+				logger.warn("�ɹ�������־�ļ�" + deleteFile.getName() + "��" + logFile.getAbsolutePath());
 			}
 		}
 		Thread.currentThread().setContextClassLoader(loader);
