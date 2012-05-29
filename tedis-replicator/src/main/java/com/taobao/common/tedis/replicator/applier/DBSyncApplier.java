@@ -95,7 +95,8 @@ public class DBSyncApplier implements RawApplier {
                     }
 
                     Map<String, Object> maps = new HashMap<String, Object>();
-                    if (action.equals(ActionType.INSERT) || action.equals(ActionType.UPDATE)) {
+                    Map<String, Object> old = null;
+                    if (action.equals(ActionType.INSERT)) {
                         List<ColumnSpec> colSpecs = orc.getColumnSpec();
 
                         Iterator<ArrayList<ColumnVal>> colValues = orc.getColumnValues().iterator();
@@ -107,6 +108,29 @@ public class DBSyncApplier implements RawApplier {
                                 maps.put(name, value);
                             }
                         }
+                    } else if (action.equals(ActionType.UPDATE)) {
+                    	old = new HashMap<String, Object>();
+                    	List<ColumnSpec> keySpecs = orc.getKeySpec();
+						ArrayList<ArrayList<OneRowChange.ColumnVal>> keyValues = orc.getKeyValues();
+
+						List<ColumnSpec> colSpecs = orc.getColumnSpec();
+						ArrayList<ArrayList<OneRowChange.ColumnVal>> columnValues = orc.getColumnValues();
+                        for (int row = 0; row < columnValues.size() || row < keyValues.size(); row++) {
+							List<ColumnVal> keyValuesOfRow = keyValues.get(row);
+							List<ColumnVal> colValuesOfRow = columnValues.get(row);
+
+							for (int i = 0; i < keyValuesOfRow.size(); i++) {
+								String name = keySpecs.get(i).getName();
+								Object value = keyValuesOfRow.get(i).getValue();
+								old.put(name, value);
+							}
+
+							for (int i = 0; i < colValuesOfRow.size(); i++) {
+								String name = colSpecs.get(i).getName();
+								Object value = colValuesOfRow.get(i).getValue();
+								maps.put(name, value);
+							}
+						}
                     } else if (action.equals(ActionType.DELETE)) {
                         List<ColumnSpec> keySpecs = orc.getKeySpec();
                         ArrayList<ArrayList<OneRowChange.ColumnVal>> keyValues = orc.getKeyValues();
@@ -126,10 +150,14 @@ public class DBSyncApplier implements RawApplier {
                         return;
                     }
                     DataEvent dataEvent = new DataEvent(action, maps, schema, table, header, System.currentTimeMillis(), doCommit);
+                    if (old != null) {
+						dataEvent.setOld(old);
+					}
                     try {
                         waitingQueue.add(dataEvent);
                     } catch (Exception e) {
                         monitorLogger.error("Add to WaitingQueue Error:" + e.getMessage());
+                        monitorLogger.error("With order_id = " + dataEvent.getData().get("biz_order_id") + " user_id = " + dataEvent.getData().get("user_id") + "\r\n");
                     }
                 }
             } else if (dbmsData instanceof LoadDataFileFragment) {
@@ -321,6 +349,7 @@ public class DBSyncApplier implements RawApplier {
                         processingQueues.get(dataEvent.getTableIndex() % threadSize).add(dataEvent);
                     } catch (Exception e) {
                         monitorLogger.error("Add to ProcessQueue Error:" + e.getMessage());
+                        monitorLogger.error(" With order_id = " + dataEvent.getData().get("biz_order_id") + " user_id = " + dataEvent.getData().get("user_id") + "\r\n");
                     }
                 } catch (InterruptedException e) {
                     break;

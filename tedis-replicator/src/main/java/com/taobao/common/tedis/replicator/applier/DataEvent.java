@@ -25,6 +25,8 @@ public class DataEvent implements Serializable {
 
 	private Map<String, Object> data;
 
+	private Map<String, Object> old;
+
 	private String schema;
 
 	private String table;
@@ -122,7 +124,15 @@ public class DataEvent implements Serializable {
 		this.commit = commit;
 	}
 
-	@Override
+	public Map<String, Object> getOld() {
+        return old;
+    }
+
+    public void setOld(Map<String, Object> old) {
+        this.old = old;
+    }
+
+    @Override
 	public String toString() {
 		return "DataEvent [actionType=" + actionType + ", data=" + data + ", schema=" + schema + ", table=" + table + ", eventId=" + header + ", time=" + time + "]";
 	}

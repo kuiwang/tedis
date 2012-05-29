@@ -47,15 +47,33 @@ public class ReplicatorServiceManager implements ServiceManager {
 	public static synchronized ServiceManager getInstance(String address) {
 		if (serviceManager == null) {
 			serviceManager = new ReplicatorServiceManager(address);
-		}
+		} else {
+            logger.warn("serviceManager exists, use the old one.");
+        }
 		return serviceManager;
 	}
+
+	public static synchronized ServiceManager getInstance(String address, String version) {
+        if (serviceManager == null) {
+            serviceManager = new ReplicatorServiceManager(address, version);
+        } else {
+            logger.error("serviceManager exists, use the old one.");
+        }
+        return serviceManager;
+    }
 
 	private ReplicatorServiceManager() {
 		this(null);
 	}
 
 	private ReplicatorServiceManager(String address) {
+	    this(address, null);
+	}
+
+	private ReplicatorServiceManager(String address, String version) {
+	    if (version != null) {
+            this.version = version;
+        }
 		this.configManager = new ConfigManager(version, this);
 		if (address != null && !address.isEmpty()) {
 			this.backup = true;
