@@ -8,6 +8,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>tedis-common</artifactId>
+	<version>1.1.1</version>
 	<name>tedis-common v${project.version}</name>
 	<dependencies>
 		<dependency>
@@ -21,10 +22,6 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.taobao.diamond</groupId>
-			<artifactId>diamond-client</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

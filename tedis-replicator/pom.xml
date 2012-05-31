@@ -8,6 +8,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>tedis-replicator</artifactId>
+	<version>1.1.1</version>
 	<name>tedis-replicator v${project.version}</name>
 	<dependencies>
 		<dependency>
