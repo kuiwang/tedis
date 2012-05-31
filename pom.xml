@@ -50,7 +50,6 @@
 	</modules>
 
 	<properties>
-		<tedis.version>${project.version}</tedis.version>
 		<redis-hosts>localhost:6379,localhost:6380</redis-hosts>
 		<project.build.sourceEncoding>GBK</project.build.sourceEncoding>
 	</properties>
@@ -59,12 +58,12 @@
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>tedis-common</artifactId>
-				<version>${tedis.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>tedis-search</artifactId>
-				<version>${tedis.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>${project.groupId}</groupId>
