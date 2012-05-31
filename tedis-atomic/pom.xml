@@ -3,12 +3,11 @@
 	<parent>
 		<groupId>com.taobao.common</groupId>
 		<artifactId>tedis-parent</artifactId>
-		<version>1.1.0</version>
+		<version>1.1.1-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>tedis-atomic</artifactId>
-	<version>1.1.1</version>
 	<name>tedis-atomic v${project.version}</name>
 
 	<dependencies>
