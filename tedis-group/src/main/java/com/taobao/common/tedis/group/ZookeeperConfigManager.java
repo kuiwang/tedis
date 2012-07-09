@@ -50,16 +50,19 @@ public class ZookeeperConfigManager implements ConfigManager {
     String version;
 
     public ZookeeperConfigManager(String appName, String version) {
-        try {
-            init(appName, version);
-        } catch (Exception e) {
-            logger.error("Init zeekeeper error.", e);
-        }
-    }
-
-    private void init(String appName, String version) throws Exception {
         this.appName = appName;
         this.version = version;
+    }
+
+    public void setZkAddress(String zkAddress) {
+        this.zkAddress = zkAddress;
+    }
+
+    public void setZkTimeout(int zkTimeout) {
+        this.zkTimeout = zkTimeout;
+    }
+
+    public void init() throws Exception {
         zkClient = new ZKClient(zkAddress, zkTimeout);
         zkClient.init();
         String path = ZKUtil.contact("tedis-config", appName);
@@ -182,7 +185,7 @@ public class ZookeeperConfigManager implements ConfigManager {
         public void process(WatchedEvent event) {
             String string = null;
             try {
-                string = new String(zkClient.getData(event.getPath()));
+                string = new String(zkClient.getData(event.getPath(), this));
             } catch (ZKException e) {
                 logger.error("Get config error.", e);
                 return;
