@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 
 import org.junit.Test;
 
+import com.taobao.common.tedis.Group;
 import com.taobao.common.tedis.binary.RedisCommands;
 import com.taobao.common.tedis.group.TedisGroup;
 
@@ -131,7 +132,9 @@ public class TedisGroupTest {
 
     @Test
     public void testSet128b() throws NoSuchMethodException, Exception {
-        RedisCommands tedis = new TedisGroup("test", "v0").getTedis();
+        Group group = new TedisGroup("test", "v0");
+        group.init();
+        RedisCommands tedis = group.getTedis();
         byte[] key = "testSet128b".getBytes();
         tedis.del(key);// 准备或清理数据
         Object[] args = new Object[] { key, new byte[128] };// 构造要测试的方法参数
@@ -144,7 +147,9 @@ public class TedisGroupTest {
 
     @Test
     public void testGet128b() throws NoSuchMethodException, Exception {
-        RedisCommands tedis = new TedisGroup("test", "v0").getTedis();
+        Group group = new TedisGroup("test", "v0");
+        group.init();
+        RedisCommands tedis = group.getTedis();
         byte[] key = "testGet128b".getBytes();
         tedis.set(key, new byte[128]);// //准备或清理数据
         Object[] args = new Object[] { key };

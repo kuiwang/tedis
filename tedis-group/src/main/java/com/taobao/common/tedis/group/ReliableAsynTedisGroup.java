@@ -109,7 +109,7 @@ public class ReliableAsynTedisGroup implements Group {
                                     TedisException te = (TedisException) ite_1.getTargetException();
                                     if (te.getCause() instanceof TedisConnectionException) {
                                         result.setSuccess(false);
-                                        result.setErrorMessage("JedisConnectionException");
+                                        result.setErrorMessage("TedisConnectionException");
                                         result.setRuntimeException(te);
                                         return result;
                                     }
