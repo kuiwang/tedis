@@ -50,6 +50,8 @@ public class TedisGroup implements Group {
     private volatile boolean inited = false;
     private final static int retryTimes = 3;
 
+    public TedisGroup() {}
+
     public TedisGroup(String appName, String version) {
         this.appName = appName;
         this.version = version;

@@ -58,6 +58,8 @@ public class ReliableAsynTedisGroup implements Group {
 
     private OspreyManager ospreyManager;
 
+    public ReliableAsynTedisGroup() {}
+
     public ReliableAsynTedisGroup(String appName, String version) {
         this.appName = appName;
         this.version = version;
