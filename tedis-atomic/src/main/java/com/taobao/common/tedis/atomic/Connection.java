@@ -70,10 +70,21 @@ public class Connection {
     }
 
     protected void flush() {
+        clearBuf();
         try {
             outputStream.flush();
         } catch (IOException e) {
             throw new TedisConnectionException(e);
+        }
+    }
+
+    private void clearBuf() {
+        try {
+            while (inputStream.available() > 0) {
+                inputStream.readLine();
+            }
+        } catch (Exception e) {
+
         }
     }
 
@@ -129,9 +140,13 @@ public class Connection {
             try {
                 socket = new Socket();
                 socket.setReuseAddress(true);
-                socket.setKeepAlive(true);  //Will monitor the TCP connection is valid
-                socket.setTcpNoDelay(true);  //Socket buffer Whetherclosed, to ensure timely delivery of data
-                socket.setSoLinger(true,0);  //Control calls close () method, the underlying socket is closed immediately
+                socket.setKeepAlive(true); // Will monitor the TCP connection is
+                                           // valid
+                socket.setTcpNoDelay(true); // Socket buffer Whetherclosed, to
+                                            // ensure timely delivery of data
+                socket.setSoLinger(true, 0); // Control calls close () method,
+                                             // the underlying socket is closed
+                                             // immediately
 
                 socket.connect(new InetSocketAddress(host, port), timeout);
                 socket.setSoTimeout(timeout);
@@ -158,9 +173,7 @@ public class Connection {
     }
 
     public boolean isConnected() {
-        return socket != null && socket.isBound() && !socket.isClosed()
-                && socket.isConnected() && !socket.isInputShutdown()
-                && !socket.isOutputShutdown();
+        return socket != null && socket.isBound() && !socket.isClosed() && socket.isConnected() && !socket.isInputShutdown() && !socket.isOutputShutdown();
     }
 
     protected String getStatusCodeReply() {
@@ -221,11 +234,11 @@ public class Connection {
         List<Object> all = new ArrayList<Object>();
         flush();
         while (pipelinedCommands > except) {
-        	try{
-        		all.add(protocol.read(inputStream));
-        	}catch(TedisDataException e){
-        		all.add(e);
-        	}
+            try {
+                all.add(protocol.read(inputStream));
+            } catch (TedisDataException e) {
+                all.add(e);
+            }
             pipelinedCommands--;
         }
         return all;
