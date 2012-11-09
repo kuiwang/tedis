@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>com.taobao.common</groupId>
 		<artifactId>tedis-parent</artifactId>
-		<version>1.1.4</version>
+		<version>1.1.5</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -10,7 +10,7 @@
 	<name>tedis-common v${project.version}</name>
 	<dependencies>
 		<dependency>
-			<groupId>com.caucho</groupId>
+			<groupId>hessian</groupId>
 			<artifactId>hessian</artifactId>
 		</dependency>
 		<dependency>

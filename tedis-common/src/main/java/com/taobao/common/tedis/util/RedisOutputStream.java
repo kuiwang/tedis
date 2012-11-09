@@ -13,7 +13,7 @@ import java.io.*;
 /**
  * The class implements a buffered output stream without synchronization There
  * are also special operations like in-place string encoding. This stream fully
- * ignore mark/reset and should not be used outside Jedis
+ * ignore mark/reset and should not be used outside Tedis
  */
 public final class RedisOutputStream extends FilterOutputStream {
     protected final byte buf[];
@@ -34,11 +34,8 @@ public final class RedisOutputStream extends FilterOutputStream {
 
     private void flushBuffer() throws IOException {
         if (count > 0) {
-            try {
-                out.write(buf, 0, count);
-            } finally {
-                count = 0;
-            }
+            out.write(buf, 0, count);
+            count = 0;
         }
     }
 

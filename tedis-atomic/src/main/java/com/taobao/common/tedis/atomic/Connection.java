@@ -70,21 +70,10 @@ public class Connection {
     }
 
     protected void flush() {
-        clearBuf();
         try {
             outputStream.flush();
         } catch (IOException e) {
             throw new TedisConnectionException(e);
-        }
-    }
-
-    private void clearBuf() {
-        try {
-            while (inputStream.available() > 0) {
-                inputStream.readLine();
-            }
-        } catch (Exception e) {
-
         }
     }
 

@@ -116,17 +116,21 @@ public class TedisGroup implements Group {
                                 } else {
                                     ExecutionException ee = (ExecutionException) ute.getUndeclaredThrowable();
                                     InvocationTargetException ite_1 = (InvocationTargetException) ee.getCause();
-                                    TedisException te = (TedisException) ite_1.getTargetException();
-                                    if (te.getCause() instanceof TedisConnectionException) {
+                                    if (ite_1.getCause() instanceof ClassCastException) {
                                         connectionError = true;
                                         rr.onError(s);
+                                    } else {
+                                        TedisException te = (TedisException) ite_1.getTargetException();
+                                        if (te instanceof TedisConnectionException || te.getCause() instanceof TedisConnectionException) {
+                                            connectionError = true;
+                                            rr.onError(s);
+                                        }
                                     }
                                 }
                             }
                         } catch (Throwable tt) {
                             logger.warn("解包异常:", tt);
-                            // 可能会抛出转换异常,符合预期,如果碰到转换异常,直接在connection error
-                            // 过程中从新抛出
+                            // 可能会抛出转换异常,符合预期,如果碰到转换异常,直接在connection error过程中从新抛出
                         }
 
                         if (!connectionError) {
@@ -162,9 +166,13 @@ public class TedisGroup implements Group {
                                     } else {
                                         ExecutionException ee = (ExecutionException) ute.getUndeclaredThrowable();
                                         InvocationTargetException ite_1 = (InvocationTargetException) ee.getCause();
-                                        TedisException te = (TedisException) ite_1.getTargetException();
-                                        if (te.getCause() instanceof TedisConnectionException) {
+                                        if (ite_1.getCause() instanceof ClassCastException) {
                                             rr.onError(s);
+                                        } else {
+                                            TedisException te = (TedisException) ite_1.getTargetException();
+                                            if (te instanceof TedisConnectionException || te.getCause() instanceof TedisConnectionException) {
+                                                rr.onError(s);
+                                            }
                                         }
                                     }
                                 } catch (Throwable tt) {
