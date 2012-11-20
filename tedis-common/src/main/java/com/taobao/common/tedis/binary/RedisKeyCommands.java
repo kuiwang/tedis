@@ -13,8 +13,6 @@ import java.util.Set;
 
 import com.taobao.common.tedis.config.Process;
 import com.taobao.common.tedis.config.Process.Policy;
-import com.taobao.common.tedis.config.ShardKey;
-import com.taobao.common.tedis.config.ShardKey.Type;
 import com.taobao.common.tedis.util.SortParams;
 
 /**
@@ -25,44 +23,44 @@ import com.taobao.common.tedis.util.SortParams;
 public interface RedisKeyCommands {
 
     @Process(Policy.READ)
-    Boolean exists(@ShardKey byte[] key);
+    Boolean exists(byte[] key);
 
     @Process(Policy.WRITE)
-    Long del(@ShardKey(Type.MULTI) byte[]... keys);
+    Long del(byte[]... keys);
 
     @Process(Policy.READ)
-    String type(@ShardKey byte[] key);
+    String type(byte[] key);
 
     @Process(Policy.READ)
-    Set<byte[]> keys(@ShardKey(retType=Type.RT_SET) byte[] pattern);
+    Set<byte[]> keys(byte[] pattern);
 
     @Process(Policy.READ)
     byte[] randomKey();
 
     @Process(Policy.WRITE)
-    Boolean rename(@ShardKey byte[] oldName, byte[] newName);
+    Boolean rename(byte[] oldName, byte[] newName);
 
     @Process(Policy.WRITE)
-    Boolean renameNX(@ShardKey byte[] oldName, byte[] newName);
+    Boolean renameNX(byte[] oldName, byte[] newName);
 
     @Process(Policy.WRITE)
-    Boolean expire(@ShardKey byte[] key, long seconds);
+    Boolean expire(byte[] key, long seconds);
 
     @Process(Policy.WRITE)
-    Boolean expireAt(@ShardKey byte[] key, long unixTime);
+    Boolean expireAt(byte[] key, long unixTime);
 
     @Process(Policy.WRITE)
-    Boolean persist(@ShardKey byte[] key);
+    Boolean persist(byte[] key);
 
     @Process(Policy.WRITE)
-    Boolean move(@ShardKey byte[] key, int dbIndex);
+    Boolean move(byte[] key, int dbIndex);
 
     @Process(Policy.READ)
-    Long ttl(@ShardKey byte[] key);
+    Long ttl(byte[] key);
 
     @Process(Policy.READ)
-    List<byte[]> sort(@ShardKey byte[] key, SortParams params);
+    List<byte[]> sort(byte[] key, SortParams params);
 
     @Process(Policy.READ)
-    Long sort(@ShardKey byte[] key, SortParams params, byte[] storeKey);
+    Long sort(byte[] key, SortParams params, byte[] storeKey);
 }

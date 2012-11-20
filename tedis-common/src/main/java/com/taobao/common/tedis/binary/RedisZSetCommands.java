@@ -11,7 +11,6 @@ package com.taobao.common.tedis.binary;
 import java.util.Set;
 
 import com.taobao.common.tedis.config.Process;
-import com.taobao.common.tedis.config.ShardKey;
 import com.taobao.common.tedis.config.Process.Policy;
 import com.taobao.common.tedis.util.ZParams;
 
@@ -44,83 +43,83 @@ public interface RedisZSetCommands {
     }
 
     @Process(Policy.WRITE)
-    Boolean zAdd(@ShardKey byte[] key, double score, byte[] value);
+    Boolean zAdd(byte[] key, double score, byte[] value);
 
     @Process(Policy.WRITE)
-    Long zAdd(@ShardKey byte[] key, Tuple... value);
+    Long zAdd(byte[] key, Tuple... value);
 
     @Process(Policy.WRITE)
-    Long zRem(@ShardKey byte[] key, byte[]... value);
+    Long zRem(byte[] key, byte[]... value);
 
     @Process(Policy.WRITE)
-    Double zIncrBy(@ShardKey byte[] key, double increment, byte[] value);
+    Double zIncrBy(byte[] key, double increment, byte[] value);
 
     @Process(Policy.READ)
-    Long zRank(@ShardKey byte[] key, byte[] value);
+    Long zRank(byte[] key, byte[] value);
 
     @Process(Policy.READ)
-    Long zRevRank(@ShardKey byte[] key, byte[] value);
+    Long zRevRank(byte[] key, byte[] value);
 
     @Process(Policy.READ)
-    Set<byte[]> zRange(@ShardKey byte[] key, long begin, long end);
+    Set<byte[]> zRange(byte[] key, long begin, long end);
 
     @Process(Policy.READ)
-    Set<Tuple> zRangeWithScore(@ShardKey byte[] key, long begin, long end);
+    Set<Tuple> zRangeWithScore(byte[] key, long begin, long end);
 
     @Process(Policy.READ)
-    Set<byte[]> zRevRange(@ShardKey byte[] key, long begin, long end);
+    Set<byte[]> zRevRange(byte[] key, long begin, long end);
 
     @Process(Policy.READ)
-    Set<Tuple> zRevRangeWithScore(@ShardKey byte[] key, long begin, long end);
+    Set<Tuple> zRevRangeWithScore(byte[] key, long begin, long end);
 
     @Process(Policy.READ)
-    Set<byte[]> zRangeByScore(@ShardKey byte[] key, double min, double max);
+    Set<byte[]> zRangeByScore(byte[] key, double min, double max);
 
     @Process(Policy.READ)
-    Set<Tuple> zRangeByScoreWithScore(@ShardKey byte[] key, double min, double max);
+    Set<Tuple> zRangeByScoreWithScore(byte[] key, double min, double max);
 
     @Process(Policy.READ)
-    Set<byte[]> zRangeByScore(@ShardKey byte[] key, double min, double max, long offset, long count);
+    Set<byte[]> zRangeByScore(byte[] key, double min, double max, long offset, long count);
 
     @Process(Policy.READ)
-    Set<Tuple> zRangeByScoreWithScore(@ShardKey byte[] key, double min, double max, long offset, long count);
+    Set<Tuple> zRangeByScoreWithScore(byte[] key, double min, double max, long offset, long count);
 
     @Process(Policy.READ)
-    Set<byte[]> zRevRangeByScore(@ShardKey byte[] key, double min, double max);
+    Set<byte[]> zRevRangeByScore(byte[] key, double min, double max);
 
     @Process(Policy.READ)
-    Set<Tuple> zRevRangeByScoreWithScore(@ShardKey byte[] key, double min, double max);
+    Set<Tuple> zRevRangeByScoreWithScore(byte[] key, double min, double max);
 
     @Process(Policy.READ)
-    Set<byte[]> zRevRangeByScore(@ShardKey byte[] key, double min, double max, long offset, long count);
+    Set<byte[]> zRevRangeByScore(byte[] key, double min, double max, long offset, long count);
 
     @Process(Policy.READ)
-    Set<Tuple> zRevRangeByScoreWithScore(@ShardKey byte[] key, double min, double max, long offset, long count);
+    Set<Tuple> zRevRangeByScoreWithScore(byte[] key, double min, double max, long offset, long count);
 
     @Process(Policy.READ)
-    Long zCount(@ShardKey byte[] key, double min, double max);
+    Long zCount(byte[] key, double min, double max);
 
     @Process(Policy.READ)
-    Long zCard(@ShardKey byte[] key);
+    Long zCard(byte[] key);
 
     @Process(Policy.READ)
-    Double zScore(@ShardKey byte[] key, byte[] value);
+    Double zScore(byte[] key, byte[] value);
 
     @Process(Policy.WRITE)
-    Long zRemRange(@ShardKey byte[] key, long begin, long end);
+    Long zRemRange(byte[] key, long begin, long end);
 
     @Process(Policy.WRITE)
-    Long zRemRangeByScore(@ShardKey byte[] key, double min, double max);
+    Long zRemRangeByScore(byte[] key, double min, double max);
 
     @Process(Policy.WRITE)
-    Long zUnionStore(@ShardKey byte[] destKey, byte[]... sets);
+    Long zUnionStore(byte[] destKey, byte[]... sets);
 
     @Process(Policy.WRITE)
-    Long zUnionStore(@ShardKey byte[] destKey, ZParams params, int[] weights, byte[]... sets);
+    Long zUnionStore(byte[] destKey, ZParams params, int[] weights, byte[]... sets);
 
     @Process(Policy.WRITE)
-    Long zInterStore(@ShardKey byte[] destKey, byte[]... sets);
+    Long zInterStore(byte[] destKey, byte[]... sets);
 
     @Process(Policy.WRITE)
-    Long zInterStore(@ShardKey byte[] destKey, ZParams aggregate, int[] weights, byte[]... sets);
+    Long zInterStore(byte[] destKey, ZParams aggregate, int[] weights, byte[]... sets);
 }

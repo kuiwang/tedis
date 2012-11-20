@@ -26,9 +26,11 @@ import com.taobao.common.tedis.config.ConfigManager;
 import com.taobao.common.tedis.config.HAConfig;
 import com.taobao.common.tedis.config.HAConfig.ServerInfo;
 import com.taobao.common.tedis.config.HAConfig.ServerProperties;
+import com.taobao.common.tedis.config.Router;
 
 /**
  * File 实现，没有动态推送功能
+ *
  * @author juxin.zj E-mail:juxin.zj@taobao.com
  * @since 2012-4-19 下午1:46:18
  * @version 1.0
@@ -37,7 +39,7 @@ public class FileConfigManager implements ConfigManager {
 
     static Log logger = LogFactory.getLog(FileConfigManager.class);
     public static String defaultConfigFile = "tedis.config";
-    volatile RandomRouter router;
+    volatile Router router;
     String configKey;
     int timeout = 3000;
     // 保存所有的配置
@@ -83,15 +85,19 @@ public class FileConfigManager implements ConfigManager {
 
         this.haConfig = parseConfig(configString.toString());
         if (this.haConfig.password != null) {
-            for (ServerProperties sp : haConfig.getServers()) {
+            for (ServerProperties sp : haConfig.groups) {
                 sp.password = this.haConfig.password;
             }
         }
-        this.router = new RandomRouter(haConfig.getServers(), haConfig.failover);
+        if (haConfig.ms) {
+            router = new MSRandomRouter(haConfig.groups, haConfig.failover);
+        } else {
+            router = new RandomRouter(haConfig.groups, haConfig.failover);
+        }
     }
 
     @Override
-    public RandomRouter getRouter() {
+    public Router getRouter() {
         return router;
     }
 
@@ -151,31 +157,21 @@ public class FileConfigManager implements ConfigManager {
             logger.info("servers=" + s_servers);
             String[] array = s_servers.trim().split(",");
             List<ServerProperties> servers = new ArrayList<ServerProperties>();
-            int groupSize = 0;
             for (String s : array) {
-                String[] groups = s.split("\\|");
-                if (groupSize != 0 && groups.length != groupSize) {
-                    logger.error("配置错误：多个group size不一致");
-                }
-                groupSize = groups.length;
                 ServerProperties sp = new ServerProperties();
-                sp.servers = new ServerInfo[groupSize];
-                for (int i = 0; i < groupSize; i++) {
-                    String[] ss = groups[i].split(":");
-                    ServerInfo server = new ServerInfo();
-                    if (ss.length >= 2) {
-                        server.addr = ss[0];
-                        server.port = Integer.parseInt(ss[1]);
-                        sp.pool_size = config.pool_size;
-                        sp.timeout = config.timeout;
-                        sp.password = config.password;
-                        if (ss.length == 3) {
-                            sp.readWeight = Integer.parseInt(ss[2].toLowerCase().replace("r", "").trim());
-                        }
-                    } else {
-                        logger.error("配置错误:" + s);
+                sp.server = new ServerInfo();
+                String[] ss = s.split(":");
+                if (ss.length >= 2) {
+                    sp.server.addr = ss[0];
+                    sp.server.port = Integer.parseInt(ss[1]);
+                    sp.pool_size = config.pool_size;
+                    sp.timeout = config.timeout;
+                    sp.password = config.password;
+                    if (ss.length == 3) {
+                        sp.readWeight = Integer.parseInt(ss[2].toLowerCase().replace("r", "").trim());
                     }
-                    sp.servers[i] = server;
+                } else {
+                    logger.error("配置错误:" + s);
                 }
                 servers.add(sp);
             }

@@ -149,7 +149,7 @@ public class ReliableAsynTedisGroup implements Group {
             Process annotation = method.getAnnotation(Process.class);
             Throwable exception = null;
             if (annotation.value() == Policy.READ) {
-                while (rr.getRouteData().props.size() > 0) {
+                while (rr.getReadData().props.size() > 0) {
                     Single s = rr.route();
                     try {
                         Object result = method.invoke(s.getTedis(), args);
@@ -191,7 +191,7 @@ public class ReliableAsynTedisGroup implements Group {
 
                 throw new Exception("read RouteData is empty," + rr, exception);
             } else if (annotation.value() == Policy.WRITE) {
-                Single[] ss = rr.getAllRouteData().group;
+                Single[] ss = rr.getWriteData().group;
                 if (ss == null || ss.length == 0) {
                     throw new Exception("write RouteData is empty," + rr, exception);
                 }

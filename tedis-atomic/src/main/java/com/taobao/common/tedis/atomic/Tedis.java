@@ -20,9 +20,6 @@ import java.util.Set;
 
 import com.taobao.common.tedis.TedisException;
 import com.taobao.common.tedis.binary.RedisCommands;
-import com.taobao.common.tedis.config.Process;
-import com.taobao.common.tedis.config.Process.Policy;
-import com.taobao.common.tedis.config.ShardKey;
 import com.taobao.common.tedis.util.Protocol;
 import com.taobao.common.tedis.util.SafeEncoder;
 import com.taobao.common.tedis.util.SortParams;
@@ -504,8 +501,8 @@ public class Tedis implements RedisCommands {
         return client.getIntegerReply() == 1;
     }
 
-    @Process(Policy.WRITE)
-    public Long zAdd(@ShardKey byte[] key, Tuple... value) {
+    @Override
+    public Long zAdd(byte[] key, Tuple... value) {
         client.zadd(key, value);
         return client.getIntegerReply();
     }
@@ -599,26 +596,26 @@ public class Tedis implements RedisCommands {
     }
 
     @Override
-    public Set<byte[]> zRevRangeByScore(@ShardKey byte[] key, double min, double max) {
+    public Set<byte[]> zRevRangeByScore(byte[] key, double min, double max) {
         client.zrevrangeByScore(key, max, min);
         return new LinkedHashSet<byte[]>(client.getBinaryMultiBulkReply());
     }
 
     @Override
-    public Set<Tuple> zRevRangeByScoreWithScore(@ShardKey byte[] key, double min, double max) {
+    public Set<Tuple> zRevRangeByScoreWithScore(byte[] key, double min, double max) {
         client.zrevrangeByScoreWithScores(key, max, min);
         Set<Tuple> set = getBinaryTupledSet();
         return set;
     }
 
     @Override
-    public Set<byte[]> zRevRangeByScore(@ShardKey byte[] key, double min, double max, long offset, long count) {
+    public Set<byte[]> zRevRangeByScore(byte[] key, double min, double max, long offset, long count) {
         client.zrevrangeByScore(key, max, min, offset, count);
         return new LinkedHashSet<byte[]>(client.getBinaryMultiBulkReply());
     }
 
     @Override
-    public Set<Tuple> zRevRangeByScoreWithScore(@ShardKey byte[] key, double min, double max, long offset, long count) {
+    public Set<Tuple> zRevRangeByScoreWithScore(byte[] key, double min, double max, long offset, long count) {
         client.zrevrangeByScoreWithScores(key, max, min, offset, count);
         Set<Tuple> set = getBinaryTupledSet();
         return set;

@@ -11,9 +11,7 @@ package com.taobao.common.tedis.binary;
 import java.util.Set;
 
 import com.taobao.common.tedis.config.Process;
-import com.taobao.common.tedis.config.ShardKey;
 import com.taobao.common.tedis.config.Process.Policy;
-import com.taobao.common.tedis.config.ShardKey.Type;
 
 /**
  * @author juxin.zj E-mail:juxin.zj@taobao.com
@@ -23,44 +21,44 @@ import com.taobao.common.tedis.config.ShardKey.Type;
 public interface RedisSetCommands {
 
     @Process(Policy.WRITE)
-    Long sAdd(@ShardKey byte[] key, byte[]... value);
+    Long sAdd(byte[] key, byte[]... value);
 
     @Process(Policy.WRITE)
-    Long sRem(@ShardKey byte[] key, byte[]... value);
+    Long sRem(byte[] key, byte[]... value);
 
     @Process(Policy.READ)
-    byte[] sPop(@ShardKey byte[] key);
+    byte[] sPop(byte[] key);
 
     @Process(Policy.WRITE)
-    Boolean sMove(@ShardKey byte[] srcKey, byte[] destKey, byte[] value);
+    Boolean sMove(byte[] srcKey, byte[] destKey, byte[] value);
 
     @Process(Policy.READ)
-    Long sCard(@ShardKey byte[] key);
+    Long sCard(byte[] key);
 
     @Process(Policy.READ)
-    Boolean sIsMember(@ShardKey byte[] key, byte[] value);
+    Boolean sIsMember(byte[] key, byte[] value);
 
     @Process(Policy.READ)
-    Set<byte[]> sInter(@ShardKey(Type.MULTI) byte[]... keys);
+    Set<byte[]> sInter(byte[]... keys);
 
     @Process(Policy.WRITE)
-    Long sInterStore(@ShardKey byte[] destKey, byte[]... keys);
+    Long sInterStore(byte[] destKey, byte[]... keys);
 
     @Process(Policy.READ)
-    Set<byte[]> sUnion(@ShardKey(Type.MULTI) byte[]... keys);
+    Set<byte[]> sUnion(byte[]... keys);
 
     @Process(Policy.WRITE)
-    Long sUnionStore(@ShardKey byte[] destKey, byte[]... keys);
+    Long sUnionStore(byte[] destKey, byte[]... keys);
 
     @Process(Policy.READ)
-    Set<byte[]> sDiff(@ShardKey(Type.MULTI) byte[]... keys);
+    Set<byte[]> sDiff(byte[]... keys);
 
     @Process(Policy.WRITE)
-    Long sDiffStore(@ShardKey byte[] destKey, byte[]... keys);
+    Long sDiffStore(byte[] destKey, byte[]... keys);
 
     @Process(Policy.READ)
-    Set<byte[]> sMembers(@ShardKey byte[] key);
+    Set<byte[]> sMembers(byte[] key);
 
     @Process(Policy.READ)
-    byte[] sRandMember(@ShardKey byte[] key);
+    byte[] sRandMember(byte[] key);
 }

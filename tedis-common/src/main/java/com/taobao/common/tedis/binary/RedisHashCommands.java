@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.taobao.common.tedis.config.Process;
-import com.taobao.common.tedis.config.ShardKey;
 import com.taobao.common.tedis.config.Process.Policy;
 
 /**
@@ -25,39 +24,39 @@ import com.taobao.common.tedis.config.Process.Policy;
 public interface RedisHashCommands {
 
     @Process(Policy.WRITE)
-    Boolean hSet(@ShardKey byte[] key, byte[] field, byte[] value);
+    Boolean hSet(byte[] key, byte[] field, byte[] value);
 
     @Process(Policy.WRITE)
-    Boolean hSetNX(@ShardKey byte[] key, byte[] field, byte[] value);
+    Boolean hSetNX(byte[] key, byte[] field, byte[] value);
 
     @Process(Policy.READ)
-    byte[] hGet(@ShardKey byte[] key, byte[] field);
+    byte[] hGet(byte[] key, byte[] field);
 
     @Process(Policy.READ)
-    List<byte[]> hMGet(@ShardKey byte[] key, byte[]... fields);
+    List<byte[]> hMGet(byte[] key, byte[]... fields);
 
     @Process(Policy.WRITE)
-    Boolean hMSet(@ShardKey byte[] key, Map<byte[], byte[]> hashes);
+    Boolean hMSet(byte[] key, Map<byte[], byte[]> hashes);
 
     @Process(Policy.WRITE)
-    Long hIncrBy(@ShardKey byte[] key, byte[] field, long delta);
+    Long hIncrBy(byte[] key, byte[] field, long delta);
 
     @Process(Policy.READ)
-    Boolean hExists(@ShardKey byte[] key, byte[] field);
+    Boolean hExists(byte[] key, byte[] field);
 
     @Process(Policy.WRITE)
-    Long hDel(@ShardKey byte[] key, byte[]... field);
+    Long hDel(byte[] key, byte[]... field);
 
     @Process(Policy.READ)
-    Long hLen(@ShardKey byte[] key);
+    Long hLen(byte[] key);
 
     @Process(Policy.READ)
-    Set<byte[]> hKeys(@ShardKey byte[] key);
+    Set<byte[]> hKeys(byte[] key);
 
     @Process(Policy.READ)
-    List<byte[]> hVals(@ShardKey byte[] key);
+    List<byte[]> hVals(byte[] key);
 
     @Process(Policy.READ)
-    Map<byte[], byte[]> hGetAll(@ShardKey byte[] key);
+    Map<byte[], byte[]> hGetAll(byte[] key);
 
 }

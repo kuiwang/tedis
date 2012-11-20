@@ -86,9 +86,12 @@ public class HashCommandsTest extends BaseTestCase {
     @Test
     public void  size(){
         long old = hashCommands.size(NAMESPACE1, key2);
+        System.out.println("old:" + old);
+        System.out.println(hashCommands.keys(NAMESPACE1, key2));
         hashCommands.put(NAMESPACE1, key2, key1, message1);
         hashCommands.put(NAMESPACE1, key2, key2, message2);
         hashCommands.put(NAMESPACE1, key2, key3, message3);
+        System.out.println("new:" + hashCommands.size(NAMESPACE1, key2).longValue());
         assertEquals(old + 3, hashCommands.size(NAMESPACE1, key2).longValue());
     }
 

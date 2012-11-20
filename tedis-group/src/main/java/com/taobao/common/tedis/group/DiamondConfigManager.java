@@ -22,6 +22,7 @@ import com.taobao.common.tedis.config.ConfigManager;
 import com.taobao.common.tedis.config.HAConfig;
 import com.taobao.common.tedis.config.HAConfig.ServerInfo;
 import com.taobao.common.tedis.config.HAConfig.ServerProperties;
+import com.taobao.common.tedis.config.Router;
 import com.taobao.diamond.manager.DiamondManager;
 import com.taobao.diamond.manager.ManagerListener;
 import com.taobao.diamond.manager.impl.DefaultDiamondManager;
@@ -35,7 +36,7 @@ public class DiamondConfigManager implements ConfigManager {
 
     static Log logger = LogFactory.getLog(DiamondConfigManager.class);
     public static String defaultConfKey = "com.taobao.common.tedis.config";
-    volatile RandomRouter router;
+    volatile Router router;
     DiamondManager diamondManager;
     String configKey;
     int timeout = 3000;
@@ -59,16 +60,20 @@ public class DiamondConfigManager implements ConfigManager {
         String configString = diamondManager.getConfigureInfomation(timeout);
         this.haConfig = parseConfig(configString);
         if (this.haConfig.password != null) {
-            for (ServerProperties sp : haConfig.getServers()) {
+            for (ServerProperties sp : haConfig.groups) {
                 sp.password = this.haConfig.password;
             }
         }
-        this.router = new RandomRouter(haConfig.getServers(), haConfig.failover);
+        if (haConfig.ms) {
+            this.router = new MSRandomRouter(haConfig.groups, haConfig.failover);
+        } else {
+            this.router = new RandomRouter(haConfig.groups, haConfig.failover);
+        }
         diamondManager.setManagerListener(managerListener);
     }
 
     @Override
-    public RandomRouter getRouter() {
+    public Router getRouter() {
         return router;
     }
 
@@ -129,31 +134,21 @@ public class DiamondConfigManager implements ConfigManager {
             logger.info("servers=" + s_servers);
             String[] array = s_servers.trim().split(",");
             List<ServerProperties> servers = new ArrayList<ServerProperties>();
-            int groupSize = 0;
             for (String s : array) {
-                String[] groups = s.split("\\|");
-                if (groupSize != 0 && groups.length != groupSize) {
-                    logger.error("配置错误：多个group size不一致");
-                }
-                groupSize = groups.length;
                 ServerProperties sp = new ServerProperties();
-                sp.servers = new ServerInfo[groupSize];
-                for (int i = 0; i < groupSize; i++) {
-                    String[] ss = groups[i].split(":");
-                    ServerInfo server = new ServerInfo();
-                    if (ss.length >= 2) {
-                        server.addr = ss[0];
-                        server.port = Integer.parseInt(ss[1]);
-                        sp.pool_size = config.pool_size;
-                        sp.timeout = config.timeout;
-                        sp.password = config.password;
-                        if (ss.length == 3) {
-                            sp.readWeight = Integer.parseInt(ss[2].toLowerCase().replace("r", "").trim());
-                        }
-                    } else {
-                        logger.error("配置错误:" + s);
+                sp.server = new ServerInfo();
+                String[] ss = s.split(":");
+                if (ss.length >= 2) {
+                    sp.server.addr = ss[0];
+                    sp.server.port = Integer.parseInt(ss[1]);
+                    sp.pool_size = config.pool_size;
+                    sp.timeout = config.timeout;
+                    sp.password = config.password;
+                    if (ss.length == 3) {
+                        sp.readWeight = Integer.parseInt(ss[2].toLowerCase().replace("r", "").trim());
                     }
-                    sp.servers[i] = server;
+                } else {
+                    logger.error("配置错误:" + s);
                 }
                 servers.add(sp);
             }
@@ -166,10 +161,24 @@ public class DiamondConfigManager implements ConfigManager {
         Matcher m_failover = p_failover.matcher(configString);
         if (m_failover.find()) {
             try {
-                String s_failover = m.group(1);
+                String s_failover = m_failover.group(1);
+                logger.info("failover=" + s_failover);
                 config.failover = Boolean.parseBoolean(s_failover.trim());
             } catch (Throwable t) {
                 logger.error("failover开关解析出错", t);
+            }
+        }
+
+        // 是否支持master slave结构
+        Pattern p_ms = Pattern.compile("ms=([\\s\\S]+?);", Pattern.CASE_INSENSITIVE);
+        Matcher m_ms = p_ms.matcher(configString);
+        if (m_ms.find()) {
+            try {
+                String s_ms = m_ms.group(1);
+                logger.info("ms=" + s_ms);
+                config.ms = Boolean.parseBoolean(s_ms.trim());
+            } catch (Throwable t) {
+                logger.error("master slave配置解析出错", t);
             }
         }
         return config;
@@ -186,8 +195,12 @@ public class DiamondConfigManager implements ConfigManager {
         public void receiveConfigInfo(String string) {
             logger.warn("配置变更：" + string);
             haConfig = parseConfig(string);
-            RandomRouter old = router;
-            router = new RandomRouter(haConfig.getServers(), haConfig.failover);
+            Router old = router;
+            if (haConfig.ms) {
+                router = new MSRandomRouter(haConfig.groups, haConfig.failover);
+            } else {
+                router = new RandomRouter(haConfig.groups, haConfig.failover);
+            }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {

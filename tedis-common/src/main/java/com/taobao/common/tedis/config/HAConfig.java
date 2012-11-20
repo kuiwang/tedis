@@ -12,12 +12,12 @@
  */
 package com.taobao.common.tedis.config;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
- * 
- * @author jianxing <jianxing.qx@taobao.com>
+ * @author juxin.zj E-mail:juxin.zj@taobao.com
+ * @since 2011-9-20 ÏÂÎç11:54:09
+ * @version 1.0
  */
 public class HAConfig {
 
@@ -25,17 +25,10 @@ public class HAConfig {
     public int pool_size = 50;
     public int timeout = 3000;
     public boolean failover = true;
+    public boolean ms = false;
     public String password;
 
     public HAConfig() {
-    };
-
-    public HAConfig(List<ServerProperties> servers) {
-        this.groups = servers;
-    }
-
-    public List<ServerProperties> getServers() {
-        return groups;
     }
 
     @Override
@@ -84,7 +77,7 @@ public class HAConfig {
     }
 
     public static class ServerProperties {
-        public ServerInfo[] servers;
+        public ServerInfo server;
         public int readWeight = 10;
         public int pool_size;
         public int timeout;
@@ -93,24 +86,24 @@ public class HAConfig {
         public ServerProperties() {
         }
 
-        public ServerProperties(ServerInfo[] servers, int pool_size, int timeout) {
-            this(servers, pool_size, timeout, null);
+        public ServerProperties(ServerInfo server, int pool_size, int timeout) {
+            this(server, pool_size, timeout, null);
         }
 
-        public ServerProperties(ServerInfo[] servers, int pool_size, int timeout, String password) {
-            this.servers = servers;
+        public ServerProperties(ServerInfo server, int pool_size, int timeout, String password) {
+            this.server = server;
             this.pool_size = pool_size;
             this.timeout = timeout;
             this.password = password;
         }
 
         public String generateKey() {
-            return servers[0].generateKey() + "_" + pool_size + "_" + timeout;
+            return server.generateKey() + "_" + pool_size + "_" + timeout;
         }
 
         @Override
         public String toString() {
-            return "servers=" + Arrays.toString(servers) + ",read_weight=" + readWeight + ",pool_size=" + pool_size + ",timeout=" + timeout;
+            return "servers=" + server + ",read_weight=" + readWeight + ",pool_size=" + pool_size + ",timeout=" + timeout;
         }
 
         @Override
@@ -122,7 +115,7 @@ public class HAConfig {
                 return false;
             }
             final ServerProperties other = (ServerProperties) obj;
-            if (this.servers == null || other.servers == null || !this.servers.equals(other.servers)) {
+            if (this.server == null || other.server == null || !this.server.equals(other.server)) {
                 return false;
             }
             if (this.readWeight != other.readWeight) {
@@ -139,7 +132,7 @@ public class HAConfig {
 
         @Override
         public int hashCode() {
-            int hash = this.servers.hashCode();
+            int hash = this.server.hashCode();
             hash = 41 * hash + this.readWeight;
             hash = 41 * hash + this.pool_size;
             hash = 41 * hash + this.timeout;

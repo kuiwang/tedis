@@ -40,7 +40,9 @@ public interface Router {
 
     Single route() throws Exception;
 
-    RouteData getRouteData();
+    RouteData getReadData();
+
+    RouteData getWriteData();
 
     RouteData getAllRouteData();
 

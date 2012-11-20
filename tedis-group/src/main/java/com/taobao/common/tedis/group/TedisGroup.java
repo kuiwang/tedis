@@ -91,7 +91,7 @@ public class TedisGroup implements Group {
             Throwable exception = null;
             if (annotation.value() == Policy.READ) {
                 int errorCount = 0;
-                while (rr.getRouteData().props.size() > 0) {
+                while (rr.getReadData().props.size() > 0) {
                     Single s = rr.route();
                     try {
                         Object result = method.invoke(s.getTedis(), args);
@@ -141,7 +141,7 @@ public class TedisGroup implements Group {
 
                 throw new Exception("Read RouteData is empty," + rr, exception);
             } else if (annotation.value() == Policy.WRITE) {
-                Single[] ss = rr.getRouteData().group;
+                Single[] ss = rr.getWriteData().group;
                 if (ss == null || ss.length == 0) {
                     throw new Exception("write RouteData is empty," + rr, exception);
                 }

@@ -12,9 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.taobao.common.tedis.config.Process;
-import com.taobao.common.tedis.config.ShardKey;
 import com.taobao.common.tedis.config.Process.Policy;
-import com.taobao.common.tedis.config.ShardKey.Type;
 
 
 /**
@@ -25,57 +23,57 @@ import com.taobao.common.tedis.config.ShardKey.Type;
 public interface RedisValueCommands {
 
     @Process(Policy.READ)
-    byte[] get(@ShardKey byte[] key);
+    byte[] get(byte[] key);
 
     @Process(Policy.WRITE)
-    byte[] getSet(@ShardKey byte[] key, byte[] value);
+    byte[] getSet(byte[] key, byte[] value);
 
     @Process(Policy.READ)
-    List<byte[]> mGet(@ShardKey(Type.MULTI) byte[]... keys);
+    List<byte[]> mGet(byte[]... keys);
 
     @Process(Policy.WRITE)
-    Boolean set(@ShardKey byte[] key, byte[] value);
+    Boolean set(byte[] key, byte[] value);
 
     @Process(Policy.WRITE)
-    Boolean setNX(@ShardKey byte[] key, byte[] value);
+    Boolean setNX(byte[] key, byte[] value);
 
     @Process(Policy.WRITE)
-    Boolean setEx(@ShardKey byte[] key, long seconds, byte[] value);
+    Boolean setEx(byte[] key, long seconds, byte[] value);
 
     @Process(Policy.WRITE)
-    Boolean mSet(@ShardKey(Type.MAP) Map<byte[], byte[]> tuple);
+    Boolean mSet(Map<byte[], byte[]> tuple);
 
     @Process(Policy.WRITE)
-    Boolean mSetNX(@ShardKey(Type.MAP) Map<byte[], byte[]> tuple);
+    Boolean mSetNX(Map<byte[], byte[]> tuple);
 
     @Process(Policy.WRITE)
-    Long incr(@ShardKey byte[] key);
+    Long incr(byte[] key);
 
     @Process(Policy.WRITE)
-    Long incrBy(@ShardKey byte[] key, long value);
+    Long incrBy(byte[] key, long value);
 
     @Process(Policy.WRITE)
-    Long decr(@ShardKey byte[] key);
+    Long decr(byte[] key);
 
     @Process(Policy.WRITE)
-    Long decrBy(@ShardKey byte[] key, long value);
+    Long decrBy(byte[] key, long value);
 
     @Process(Policy.WRITE)
-    Long append(@ShardKey byte[] key, byte[] value);
+    Long append(byte[] key, byte[] value);
 
     @Process(Policy.READ)
-    byte[] getRange(@ShardKey byte[] key, long begin, long end);
+    byte[] getRange(byte[] key, long begin, long end);
 
     @Process(Policy.WRITE)
-    Long setRange(@ShardKey byte[] key, byte[] value, long offset);
+    Long setRange(byte[] key, byte[] value, long offset);
 
     @Process(Policy.READ)
-    Boolean getBit(@ShardKey byte[] key, long offset);
+    Boolean getBit(byte[] key, long offset);
 
     @Process(Policy.WRITE)
-    Long setBit(@ShardKey byte[] key, long offset, boolean value);
+    Long setBit(byte[] key, long offset, boolean value);
 
     @Process(Policy.READ)
-    Long strLen(@ShardKey byte[] key);
+    Long strLen(byte[] key);
 
 }

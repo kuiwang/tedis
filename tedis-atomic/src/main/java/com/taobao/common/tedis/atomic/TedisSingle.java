@@ -8,14 +8,11 @@
  */
 package com.taobao.common.tedis.atomic;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -28,13 +25,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.taobao.common.tedis.Single;
-import com.taobao.common.tedis.TedisException;
 import com.taobao.common.tedis.binary.RedisCommands;
 import com.taobao.common.tedis.config.HAConfig.ServerProperties;
-import com.taobao.common.tedis.config.ShardKey;
-import com.taobao.common.tedis.config.ShardKey.Type;
-import com.taobao.common.tedis.core.BaseCommands;
-import com.taobao.common.tedis.serializer.SerializationUtils;
 
 /**
  * @author jianxing <jianxing.qx@taobao.com>
@@ -68,21 +60,17 @@ public class TedisSingle implements Single {
         this.prop = prop;
 
         this.pool_size = prop.pool_size;
-        this.tedis = (RedisCommands) Proxy.newProxyInstance(RedisCommands.class.getClassLoader(), new Class[]{RedisCommands.class}, new TedisInvocationHandler());
+        this.tedis = (RedisCommands) Proxy.newProxyInstance(RedisCommands.class.getClassLoader(), new Class[] { RedisCommands.class }, new TedisInvocationHandler());
 
         for (int i = 0; i < pool_size; i++) {
-            Tedis[] _tedises = new Tedis[prop.servers.length];
-            for (int j = 0; j < prop.servers.length; j++) {
-                Tedis _tedis = new Tedis(prop.servers[j].addr, prop.servers[j].port, prop.timeout);
-                if (null != prop.password && !"".equals(prop.password)) {
-                    _tedis.auth(prop.password);
-                } else {
-                    _tedis.ping();
-                }
-                _tedises[j] = _tedis;
+            Tedis tedis = new Tedis(prop.server.addr, prop.server.port, prop.timeout);
+            if (null != prop.password && !"".equals(prop.password)) {
+                tedis.auth(prop.password);
+            } else {
+                tedis.ping();
             }
 
-            BatchThread thread = new BatchThread(i, _tedises);
+            BatchThread thread = new BatchThread(i, tedis);
             threadPool.add(thread);
             thread.start();
         }
@@ -132,15 +120,13 @@ public class TedisSingle implements Single {
 
     private class BatchThread extends Thread {
 
-        Tedis[] tedis;
+        Tedis tedis;
         int i;
-        long[] timeMap;
         volatile boolean stop;
 
-        public BatchThread(int i, Tedis[] tedis) {
+        public BatchThread(int i, Tedis tedis) {
             this.i = i;
             this.tedis = tedis;
-            this.timeMap = new long[tedis.length];
         }
 
         @Override
@@ -152,9 +138,7 @@ public class TedisSingle implements Single {
                     while (!stop && r == null) {
                         r = requestQueue.poll(200, TimeUnit.SECONDS);
                         if (r == null) {
-                            for (Tedis t : tedis) {
-                                t.ping();
-                            }
+                            tedis.ping();
                         }
                     }
                 } catch (InterruptedException e) {
@@ -165,115 +149,22 @@ public class TedisSingle implements Single {
                 }
                 if (r != null) {
                     try {
-                        List<Object> rets = new ArrayList<Object>();
-                        for (Tedis t : getShardedTedis(r)) {
-                            rets.add(r.method.invoke(t, r.args));
-                        }
-                        r.result.setResult(handleRets(type(r), rets));
+                        r.result.setResult(r.method.invoke(tedis, r.args));
                     } catch (Throwable t) {
                         r.result.setException(t);
                     }
                 }
 
             }
-            for (Tedis t : tedis) {
-                try {
-                    t.disconnect();
-                } catch (Exception e1) {
-                    logger.warn("断开连接失败", e1);
-                }
+            try {
+                tedis.disconnect();
+            } catch (Exception e1) {
+                logger.warn("断开连接失败", e1);
             }
         }
 
-        public void stop1(){
+        public void stop1() {
             stop = true;
-        }
-
-        private Object handleRets(Type type, List<Object> rets) {
-            switch (type) {
-                case RT_OBOJECT:
-                    if (rets.size() > 0) {
-                        return rets.get(0);
-                    }
-                    return null;
-                case RT_SET:
-                    Set<byte[]> result = null;
-                    for (Object r : rets) {
-                        if (result == null) {
-                            result = (Set<byte[]>) r;
-                        } else {
-                            result.addAll((Set<byte[]>) r);
-                        }
-                    }
-                    return result;
-                default:
-                    throw new TedisException("Error: missing shard return type");
-            }
-        }
-
-        private Tedis[] getShardedTedis(Request request) {
-            int hash = (int) hash(request) % tedis.length;
-            if (hash < 0) {
-                return tedis;
-            }
-            long now = System.currentTimeMillis();
-            timeMap[hash] = now;
-            for (int i = 0; i < tedis.length; i++) {
-                if (i != hash && (now - timeMap[i]) > 200 * 1000) {
-                    tedis[i].ping();
-                    timeMap[i] = now;
-                }
-            }
-            return new Tedis[]{tedis[hash]};
-        }
-
-        private Type type(Request request) {
-            Annotation[][] as = request.method.getParameterAnnotations();
-            for (int i = 0; i < as.length; i++) {
-                if (as[i].length > 0 && as[i][0] instanceof ShardKey) {
-                    return ((ShardKey) as[i][0]).retType();
-                }
-            }
-            return Type.RT_OBOJECT;
-        }
-
-        private long hash(Request request) {
-            Annotation[][] as = request.method.getParameterAnnotations();
-            for (int i = 0; i < as.length; i++) {
-                if (as[i].length > 0 && as[i][0] instanceof ShardKey) {
-                    Type type = ((ShardKey) as[i][0]).value();
-                    return Long.parseLong(SerializationUtils.deserialize(getRouteFromKey(request.args[i], type)));
-                }
-            }
-            return -1;
-        }
-
-        private byte[] getRouteFromKey(Object key, Type type) {
-            switch (type) {
-                case SINGLE:
-                    return getSingle((byte[]) key);
-                case MULTI:
-                    byte[][] multikey = (byte[][]) key;
-                    return getSingle(multikey[0]);
-                case MAP:
-                    Map<byte[], byte[]> mapkey = (Map<byte[], byte[]>) key;
-                    return getSingle(mapkey.keySet().iterator().next());
-                default:
-                    throw new TedisException("Error: missing shard type");
-            }
-        }
-
-        private byte[] getSingle(byte[] key) {
-            int i = 0;
-            while (i < key.length && key[i] != BaseCommands.PART[0]) {
-                i++;
-            }
-            if (i >= key.length) {
-                return new byte[]{'-', '1'};
-            }
-            byte[] result = new byte[i];
-            System.arraycopy(key, 0, result, 0, i);
-            return result;
         }
     }
 
@@ -282,7 +173,7 @@ public class TedisSingle implements Single {
             thread.stop1();
             thread.interrupt();
         }
-        //threadPool.clear();
+        // threadPool.clear();
 
         Request r = null;
         while ((r = requestQueue.poll()) != null) {

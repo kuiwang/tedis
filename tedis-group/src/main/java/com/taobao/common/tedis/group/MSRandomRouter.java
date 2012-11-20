@@ -31,15 +31,15 @@ import com.taobao.common.tedis.config.HAConfig.ServerProperties;
 import com.taobao.common.tedis.config.Router;
 
 /**
- * 如果拿到的Single,操作时抛出异常，则把该Single放到错误区重试，并删除路由表里面的 如果确定重试失败，则从工厂缓存删除，
+ * 支持MS结构：写master读随机slave; 配置的第一个为master
  *
- * 如果把连接和路由分离开，怎么控制连接删除， 如果有获取到的连接失败，则通知两边，两边可能会有不一致。
- *
- * @author jianxing <jianxing.qx@taobao.com>
+ * @author juxin.zj E-mail:juxin.zj@taobao.com
+ * @since 2012-11-20 下午11:58:09
+ * @version 1.0
  */
-public final class RandomRouter implements Router {
+public final class MSRandomRouter implements Router {
 
-    static final Log logger = LogFactory.getLog(RandomRouter.class);
+    static final Log logger = LogFactory.getLog(MSRandomRouter.class);
     Random random = new Random();
     private List<ServerProperties> all_props;// 保存最开始加载的配置,里面可能有失效的服务器。
     boolean failover;
@@ -50,6 +50,8 @@ public final class RandomRouter implements Router {
     volatile RouteData routeData;
 
     private RouteData allRouteData;// 保存最开始加载的配置,里面可能有失效的服务器。
+
+    private RouteData masterRouteData;
     /**
      * single
      */
@@ -57,11 +59,12 @@ public final class RandomRouter implements Router {
     ExecutorService executor_retry = Executors.newSingleThreadExecutor();
     final Retry retry = new Retry();
 
-    public RandomRouter(List<ServerProperties> props, boolean failover) {
+    public MSRandomRouter(List<ServerProperties> props, boolean failover) {
         this.all_props = props;
         this.failover = failover;
         routeData = createRandomData(props);
         allRouteData = createRandomData(props);
+        masterRouteData = createMasterData(props);
         startRetry();
     }
 
@@ -75,6 +78,15 @@ public final class RandomRouter implements Router {
             prev = weights[i];
         }
 
+        return new RouteData(props, weights, group);
+    }
+
+    private RouteData createMasterData(List<ServerProperties> props) {
+        int[] weights = new int[1];
+        TedisSingle[] group = new TedisSingle[1];
+        group[0] = getAtomic(props.get(0));
+        weights[0] += props.get(0).readWeight;
+        logger.info("master enabled, master is " + group[0]);
         return new RouteData(props, weights, group);
     }
 
@@ -136,7 +148,7 @@ public final class RandomRouter implements Router {
 
     @Override
     public RouteData getWriteData() {
-        return routeData;
+        return masterRouteData;
     }
 
     @Override
