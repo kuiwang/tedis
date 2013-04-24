@@ -20,3 +20,7 @@ target/*
 */*/*/*/*/*/.svn/
 
 tedis-group/diamond_config_data.log
+
+.idea/*
+
+*.iml

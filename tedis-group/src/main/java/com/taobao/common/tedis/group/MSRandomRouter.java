@@ -12,23 +12,18 @@
  */
 package com.taobao.common.tedis.group;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.taobao.common.tedis.Single;
 import com.taobao.common.tedis.atomic.TedisSingle;
 import com.taobao.common.tedis.binary.RedisCommands;
 import com.taobao.common.tedis.config.HAConfig.ServerProperties;
 import com.taobao.common.tedis.config.Router;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 支持MS结构：写master读随机slave; 配置的第一个为master
@@ -104,6 +99,7 @@ public final class MSRandomRouter implements Router {
         List<ServerProperties> new_props = (List<ServerProperties>) ((ArrayList) routeData.props).clone();
         new_props.remove(prop);
         routeData = createRandomData(new_props);
+        masterRouteData = createMasterData(new_props);
 
         // 触发重试逻辑
         retry.addRetry(single);
