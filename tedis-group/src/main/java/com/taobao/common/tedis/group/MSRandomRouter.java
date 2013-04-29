@@ -99,7 +99,8 @@ public final class MSRandomRouter implements Router {
         List<ServerProperties> new_props = (List<ServerProperties>) ((ArrayList) routeData.props).clone();
         new_props.remove(prop);
         routeData = createRandomData(new_props);
-        masterRouteData = createMasterData(new_props);
+        // Master 不能改变
+        masterRouteData = createMasterData(this.all_props);
 
         // 触发重试逻辑
         retry.addRetry(single);
