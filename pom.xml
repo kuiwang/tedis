@@ -51,6 +51,7 @@
 	<properties>
 		<redis-hosts>localhost:6379,localhost:6380</redis-hosts>
 		<project.build.sourceEncoding>GBK</project.build.sourceEncoding>
+		<project.version>1.1.8</project.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -94,10 +95,15 @@
 				<artifactId>groovy-all</artifactId>
 				<version>1.8.3</version>
 			</dependency>
-			<dependency>
+			<!-- <dependency>
 				<groupId>hessian</groupId>
 				<artifactId>hessian</artifactId>
 				<version>3.0.13</version>
+			</dependency> -->
+			<dependency>
+				<groupId>com.caucho</groupId>
+				<artifactId>hessian</artifactId>
+				<version>4.0.33</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
@@ -185,7 +191,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
+				<version>2.3.2</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
